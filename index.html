@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Параллакс — статичный фон, движение по X, 2+ слоёв</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+    .parallax {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+    /* Неподвижный фон */
+    .bg {
+      position: absolute;
+      inset: 0;
+      background: url('bg.jpg') center / cover no-repeat;
+      z-index: 0;
+    }
+    /* Слои с прозрачными PNG */
+    .layer {
+      position: absolute;
+      inset: 0;
+      background-size: cover;       /* чтобы PNG полностью помещался */
+      background-position: center;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      will-change: transform;
+    }
+    /* Подключи свои PNG, просто заменив файлы */
+    .layer1 { background-image: url('layer1.png'); z-index: 1; }
+    .layer2 { background-image: url('layer2.png'); z-index: 2; }
+    /* Раскомментируй/добавь ещё при необходимости:
+    .layer3 { background-image: url('layer3.png'); z-index: 3; }
+    .layer4 { background-image: url('layer4.png'); z-index: 4; }
+    */
+  </style>
+</head>
+<body>
+  <div class="parallax" id="scene">
+    <div class="bg"></div>
+    <!-- Базовые два слоя -->
+    <div class="layer layer1" data-speed="12"></div>
+    <div class="layer layer2" data-speed="24"></div>
+    <!-- Примеры дополнительных слоёв (раскомментируй и добавь соответствующие файлы):
+    <div class="layer layer3" data-speed="36"></div>
+    <div class="layer layer4" data-speed="48"></div>
+    -->
+  </div>
+
+  <script>
+    // Движение только по оси X, фон не двигается
+    const layers = Array.from(document.querySelectorAll('.layer'));
+    function onMove(clientX) {
+      const x = (clientX / window.innerWidth - 0.5) * 2; // -1..1
+      for (const l of layers) {
+        const speed = parseFloat(l.dataset.speed || 0);
+        l.style.transform = `translateX(${x * speed}px)`;
+      }
+    }
+    // Мышь
+    document.addEventListener('mousemove', e => onMove(e.clientX));
+    // Тач (по горизонтали)
+    document.addEventListener('touchmove', e => {
+      if (e.touches && e.touches[0]) onMove(e.touches[0].clientX);
+    }, { passive: true });
+  </script>
+</body>
+</html>
